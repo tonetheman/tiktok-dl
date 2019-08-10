@@ -50,7 +50,8 @@ def mainline():
     # inf = open("out.html","r")
     # data = inf.read()
     # inf.close()
-    data = str(r1.data)
+    # data = str(r1.data)
+    data = r1.read()
 
     links = P.findall(data)
     if args.debug:
@@ -64,7 +65,8 @@ def mainline():
     r2 = opener.open(links[0])
 
     outf = open(args.output,"wb")
-    outf.write(r2.data)
+    # outf.write(r2.data)
+    outf.write(r2.read())
     outf.close()
 
 
