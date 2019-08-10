@@ -2,6 +2,30 @@
 DEBUG = True
 VERBOSE = False
  
+import sys
+VERSION = sys.version_info[0]
+
+def dowload_data(uri):
+    UA_CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36"
+    r1 = None
+    class Junk:
+        def __init__(self):
+            self.data = None
+
+    if VERSION==2:
+        import urllib2
+        req = urllib2.Request(uri, headers={ 'User-Agent': UA_CHROME })
+        # faked to return a similar setup as Python3
+        r1 = Junk()
+        print("getting url data...")
+        r1.data = urllib2.urlopen(req).read()
+        return r1
+    else:
+        http = urllib3.PoolManager(10, headers=user_agent)
+        print("getting url data...")
+        r1 = http.urlopen('GET', uri)
+        return r1
+
 def mainline():
     import argparse
     
@@ -17,16 +41,29 @@ def mainline():
     # import sys
     # sys.exit(0)
 
-    import urllib3
+    if VERSION==2:
+        pass
+    else:
+        import urllib3
 
     # this is chrome76
     UA_CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36"
     user_agent = {'user-agent': UA_CHROME }
-    http = urllib3.PoolManager(10, headers=user_agent)
+    if VERSION==2:
+        import urllib2
+        req = urllib2.Request(args.uri, headers={ 'User-Agent': UA_CHROME })
+        class Junk:
+            def __init__(self):
+                self.data = None
+        r1 = Junk()
+        r1.data = urllib2.urlopen(req).read()
+    else:
+        # 3
+        http = urllib3.PoolManager(10, headers=user_agent)
 
-    print("getting url data...")
-    r1 = http.urlopen('GET', args.uri)
-
+        print("getting url data...")
+        r1 = http.urlopen('GET', args.uri)
+    
     if args.debug and args.verbose:
         print(r1.data)
 
@@ -40,9 +77,6 @@ def mainline():
     import re
     P = re.compile("contentUrl\":\"(.*?/\?rc=.*?%3D)")
     
-    # inf = open("out.html","r")
-    # data = inf.read()
-    # inf.close()
     data = str(r1.data)
 
     links = P.findall(data)
@@ -52,8 +86,19 @@ def mainline():
     
     if len(links)==1:
         print("found good video link...", links[0])
-    
-    r2 = http.urlopen('GET', links[0])
+    else:
+        print("did not find a video link :(", len(links))
+
+        
+    if VERSION==2:
+
+        req = urllib2.Request(links[0], headers={ 'User-Agent': UA_CHROME })
+        r2 = Junk()
+        r2.data = urllib2.urlopen(req).read()
+
+
+    else:
+        r2 = http.urlopen('GET', links[0])
 
     outf = open(args.output,"wb")
     outf.write(r2.data)
