@@ -75,7 +75,7 @@ def mainline():
 
     print("parsing for video url...")
     import re
-    P = re.compile("contentUrl\":\"(.*?/\?rc=.*?%3D)")
+    P = re.compile("contentUrl\":\"(.*?/\?rc=.*?)\"")
     
     data = str(r1.data)
 
