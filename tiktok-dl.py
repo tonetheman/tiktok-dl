@@ -26,6 +26,25 @@ def download_data(uri):
         r1 = http.urlopen('GET', uri)
         return r1
 
+def video_parse(args,r1):
+    print("parsing for video url...")
+    import re
+    P = re.compile("contentUrl\":\"(.*?)\"")
+    
+    data = str(r1.data)
+
+    links = P.findall(data)
+    if args.debug:
+        for link in links:
+            print(link)
+    
+    if len(links)==1:
+        print("found good video link...", links[0])
+    else:
+        print("did not find a video link :(", len(links))
+
+    return links
+
 def mainline():
     import argparse
     
@@ -57,22 +76,7 @@ def mainline():
         outf.write(str(r1.data))
         outf.close()
 
-    print("parsing for video url...")
-    import re
-    P = re.compile("contentUrl\":\"(.*?/\?rc=.*?)\"")
-    
-    data = str(r1.data)
-
-    links = P.findall(data)
-    if args.debug:
-        for link in links:
-            print(link)
-    
-    if len(links)==1:
-        print("found good video link...", links[0])
-    else:
-        print("did not find a video link :(", len(links))
-
+    links = video_parse(args, r1)
     
     r2 = download_data(links[0])
  
